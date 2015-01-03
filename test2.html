@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>test</title>
+<script type="text/javascript" src="jquery-2.1.3.js"></script>
+<script type="text/javascript">
+const separator = "\t";
+$(document).ready(function() {
+	var tableNmae = "__TABLE__";
+	$('#input_area').change(function() {
+		var data = $('#input_area').val();
+		var lines = data.split("\n");
+		var header = lines[0].trim().split(separator);
+		var useColumns = Object.keys(header).map(function(e){return parseInt(e)});
+		var dataMap = [];
+		for(var i = 1;i < lines.length;i++) {
+			var line = lines[i].trim().split(separator);
+			dataMap.push(line);
+		}
+		console.log(dataMap);
+		tableNmae = $('#table_name').val();
+
+
+		var selectArea = $('<div>');
+		for(var i in header) {
+			var use  = $('<input type="checkbox" checked="checked">').attr("id", "selector_" + i).val("on");
+			var useLabel = $('<label>').attr("for", "selector_" + i).text(header[i]);
+			selectArea.append(use);
+			selectArea.append(useLabel);
+			use.change(function() {
+				useColumns = [];
+				for(var j = 0;j < header.length;j++) {
+					if($('#selector_' + j).is(":checked")) {
+						useColumns.push(j);
+					}
+				}
+				makeSql(useColumns);
+			})
+		}
+		var makeSql = function(useIndex) {
+			var sql = "";
+			for(var i = 0;i < dataMap.length;i++) {
+				var line = dataMap[i];
+				sql += "INSERT INTO " + tableNmae + " (";
+				sql += useColumns.map(function(e){ return header[e]}).join(",");
+				sql += ") VALUES (";
+				sql += useColumns.map(function(e){ return "'" + line[e] + "'"}).join(",");
+				sql += ");\n";
+			}
+			$('#output_area').val(sql);
+		};
+		$('#table_name').change(function (){
+			tableNmae = $('#table_name').val();
+			makeSql(useColumns);
+		});
+		makeSql(useColumns);
+		$('#selector').html(selectArea);
+	});
+});
+</script>
+<style type="text/css">
+#input_area, #output_area{
+	width:100%;
+	height:100px;
+	box-sizing: border-box;
+}
+</style>
+</head>
+<body>
+
+<div>
+<textarea id="input_area">
+id	name
+001	first
+002	secound
+</textarea>
+
+<p>
+<input type="text" value="user" id="table_name" />
+</p>
+<p id="selector"></p>
+
+<textarea id="output_area">
+</textarea>
+
+</body>
+</html>
