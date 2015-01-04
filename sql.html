@@ -47,7 +47,7 @@ $(document).ready(function() {
 				sql += "INSERT INTO " + tableNmae + " (";
 				sql += useColumns.map(function(e){ return header[e]}).join(",");
 				sql += ") VALUES (";
-				sql += useColumns.map(function(e){ return "'" + line[e] + "'"}).join(",");
+				sql += useColumns.map(function(e){ return "'" + line[e].trim() + "'"}).join(",");
 				sql += ");\n";
 			}
 			$('#output_area').val(sql);
