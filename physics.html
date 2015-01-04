@@ -1,0 +1,88 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+ "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+ 
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="ja">
+<head>
+<meta http-equiv="Content-Type" content="application/xhtml+xml; charset=UTF-8"/>
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta http-equiv="Content-Script-Type" content="text/javascript" />
+ 
+<title>物理演算</title>
+<script>
+<!--
+var objects = [];
+ 
+function CircleObject() {
+  this.x = 5;
+  this.y = 5;
+  this.div_x = 0;
+  this.div_y = 0;
+}
+ 
+var timerId;
+var context;
+var canObj= [];
+window.onload = function myload() {
+  var canvas = document.getElementById('canvas_1');
+  if (!canvas || ! canvas.getContext) { return false; };
+  context = canvas.getContext('2d');
+  canObj.h = canvas.clientHeight;
+  canObj.w = canvas.clientWidth;
+  // Y軸の反転
+  context.setTransform(1, 0, 0, -1, 0, canObj.h);
+ 
+  timerId = setInterval(interval, 30);
+}
+function interval() {
+  context.beginPath();
+  context.clearRect(0, 0, 500, 500);
+  for(i = 0;i < objects.length;i++) {
+    var circle = objects[i];
+    circle.x -= circle.div_x;
+    circle.y -= circle.div_y;
+    if(circle.y <= 0) {
+      circle.y = 0;
+      circle.div_y = (- (circle.div_y * 0.5)); // 反発係数
+      circle.div_x = circle.div_x * 0.9; // 転がり摩擦
+    } else {
+      circle.div_y += 0.98;
+    }
+    // 壁に当たったとき
+    if(circle.x < 0) {
+      circle.x = 0;
+      circle.div_x = -(circle.div_x * 0.8);
+    } else if(circle.x > canObj.w) {
+      circle.x = canObj.w;
+      circle.div_x = -(circle.div_x * 0.8);
+    }
+    context.beginPath();
+    context.arc(parseInt(circle.x), parseInt(circle.y) + 5, 5, 0, Math.PI*2, false);
+    context.fill();
+  }
+}
+function addObj() {
+  var newCircle = new CircleObject();
+  newCircle.x = 5.0 + Math.floor( Math.random() * 495 );
+  newCircle.y = canObj.h;
+  newCircle.div_x = -10.0 + Math.floor( Math.random() * 20 );
+  objects.push(newCircle);
+}
+function clearObj() {
+  objects = [];
+}
+-->
+</script>
+ 
+</head>
+ 
+<body>
+<div style="border:1px solid #666;width:500px;height:500px;">
+<canvas id="canvas_1" width="500" height="500"></canvas>
+</div>
+<input type="button" onclick="addObj();" value="追加" />
+<input type="button" onclick="clearObj();" value="クリア" />
+<div id="debug"></div>
+</body>
+ 
+</html>
