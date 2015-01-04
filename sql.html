@@ -15,7 +15,9 @@ $(document).ready(function() {
 		var useColumns = Object.keys(header).map(function(e){return parseInt(e)});
 		var dataMap = [];
 		for(var i = 1;i < lines.length;i++) {
-			var line = lines[i].trim().split(separator);
+			var str = lines[i].trim();
+			if(str == "") continue;
+			var line = str.split(separator);
 			dataMap.push(line);
 		}
 		console.log(dataMap);
