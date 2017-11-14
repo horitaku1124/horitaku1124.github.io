@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Document</title>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  let timer = document.getElementById('timer');
+  let frame = 0;
+  let lastTime = new Date().getTime();
+  let lastFrame = 0;
+  let lastSec = 0;
+  function step(timestamp) {
+    frame += 1
+    let now = new Date().getTime();
+    let sec = now - lastTime;
+    if (sec >= 1000) {
+      lastTime = now;
+      lastFrame = frame - lastFrame;
+      frame = 0;
+      lastSec++;
+    }
+    timer.innerText =  lastSec + "." + frame;
+    if(lastSec < 60) {
+      window.requestAnimationFrame(step);
+    }
+  }
+
+  window.requestAnimationFrame(step);
+});
+</script>
+</head>
+<body>
+<p id="timer"></p>
+</body>
+</html>
