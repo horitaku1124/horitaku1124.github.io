@@ -12,6 +12,10 @@
       width: 90%;
       border: 1px solid #aaa;
     }
+    #jpeg_for_save {
+      border: 1px solid #aaa;
+      width: 300px;
+    }
   </style>
   <script>
     let canObj = {};
@@ -70,6 +74,14 @@
         context.fillText(todo.text, todo.x, canObj.h - todo.y);
       });
     }
+    function createJpeg() {
+      let canvas = document.getElementById('canvas_1');
+      let jpeg = canvas.toDataURL('image/jpeg');
+      document.getElementById('jpeg_for_save').src = jpeg;
+    }
+    function closeJpeg() {
+      document.getElementById('jpeg_for_save').src = "";
+    }
   </script>
 </head>
 <body>
@@ -88,7 +100,9 @@
   </div>
 </section>
 <section>
-  <a href="https://www.iloveimg.com/ja/convert-to-jpg" target="_blank">JPEGへの変換はこちら</a>
+  <input type="button" value="JPEG" onclick="createJpeg()"> <input type="button" value="close JPEG" onclick="closeJpeg()"><br/>
+  <img id="jpeg_for_save" src="" alt="">
+  <!--<a href="https://www.iloveimg.com/ja/convert-to-jpg" target="_blank">JPEGへの変換はこちら</a>-->
 </section>
 </body>
 </html>
