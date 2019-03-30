@@ -6,6 +6,8 @@
         content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+  <script src="./js/jscolor.js"></script>
   <title>Thumbnail</title>
   <style>
     #canvas_1 {
@@ -15,6 +17,13 @@
     #jpeg_for_save {
       border: 1px solid #aaa;
       width: 300px;
+    }
+    #color_picker {
+      display: none;
+      position: absolute;
+      padding: 5px;
+      background-color: white;
+      border: 1px solid #222222;
     }
   </style>
   <script>
@@ -26,11 +35,7 @@
       app4 = new Vue({
         el: '#app-4',
         data: {
-          todos: [
-            // {id: 0, text: 'ABCD', size: 50, x: 0, y: 0},
-            // {text: 'Learn Vue'},
-            // {text: 'Build something awesome'}
-          ]
+          todos: []
         },
         methods: {
           addTodo: function () {
@@ -48,6 +53,14 @@
           },
           removeItem: function (index) {
             Vue.delete(this.todos, index);
+          },
+          onFocus: function (index) {
+            console.log(index);
+            console.log(this.value);
+            document.getElementById('color_picker').style.display = "block";
+            document.getElementById('color_picker_value').value = app4.$data.todos[index].color;
+            document.getElementById('color_picker_value').focus();
+            document.getElementById('color_picker_value').setAttribute("data-index", index);
           }
         }
       });
@@ -82,9 +95,20 @@
     function closeJpeg() {
       document.getElementById('jpeg_for_save').src = "";
     }
+    function colorPickerDone() {
+      let index = document.getElementById('color_picker_value').getAttribute("data-index");
+      document.getElementById('color_picker').style.display = "none";
+      app4.$data.todos[index].color = document.getElementById('color_picker_value').value;
+      setTimeout(repaint, 0);
+    }
   </script>
 </head>
 <body>
+<div id="color_picker">
+  <input id="color_picker_value" value="ffcc00" class="jscolor {width:101, padding:0, shadow:false,
+    borderWidth:0, backgroundColor:'transparent', insetColor:'#000'}">
+  <input type="button" value="OK" id="color_picker_done" onclick="colorPickerDone()" >
+</div>
 <canvas id="canvas_1" width="1920" height="1080"></canvas>
 <hr>
 <section id="app-4">
@@ -95,7 +119,7 @@
     Size: <input type="number" style="width:40px" v-model="todo.size" v-on:change="onChange" v-on:keyup="onChange" >
     x: <input type="number" style="width:40px" step="10" v-model="todo.x" v-on:change="onChange" v-on:keyup="onChange" >
     y: <input type="number" style="width:40px" step="10" v-model="todo.y" v-on:change="onChange" v-on:keyup="onChange" >
-    Color: <input type="text" style="width:60px"    v-model="todo.color" v-on:change="onChange" v-on:keyup="onChange" >
+    Color: <input type="text"  style="width:60px"    v-model="todo.color" v-on:change="onChange" v-on:keyup="onChange" v-on:focus="onFocus(index)" >
     Font: <input type="text"   v-model="todo.font" v-on:change="onChange" v-on:keyup="onChange" >
   </div>
 </section>
