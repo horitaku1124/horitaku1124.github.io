@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+<script>
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('process_button').addEventListener('click', () => {
+    let source = document.getElementById('source').value;
+    let times = document.getElementById('times').value;
+    let processorStr = document.getElementById('processor').value;
+    eval(processorStr);
+    let buffer = "";
+    for (let i = 0;i < times;+i++) {
+      let uniqueOut = processor(source, i);
+      buffer += uniqueOut + "\n";
+    }
+    document.getElementById('repeated_source').value = buffer;
+  });
+});
+</script>
+</head>
+<body>
+<textarea id="source" style="width: 300px;height: 200px;">ABCD</textarea><br />
+<input style="text-align: right; width: 50px;" type="number" id="times" value="2"><br />
+<input type="button" id="process_button" value="Process"><br />
+<textarea style="width: 300px;height: 200px;" id="processor">
+function processor(str, i) {
+  return str.replace(/A/, i);
+}
+</textarea><br />
+<textarea  style="width: 300px;height: 200px;" id="repeated_source"></textarea><br />
+</body>
+</html>
