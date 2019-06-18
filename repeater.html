@@ -7,6 +7,35 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <title>Document</title>
 <script>
+function formatString(...args) {
+  let format = args[0];
+  let result = format;
+  let matches = format.match(/(%(s|\d*d))/g);
+
+  for (let i = 0;i < matches.length;i++) {
+    let replaceFrom = matches[i];
+    let replaceTo = args[i + 1].toString();
+    if (replaceFrom === "%s" || replaceFrom === "%d") {
+      result = result.replace(matches[i], replaceTo);
+    } else {
+      let matchDigit = replaceFrom.match(/%(.\d)d/);
+      if (matchDigit) {
+        let pad = matchDigit[1].charAt(0);
+        let repeat = parseInt(matchDigit[1].charAt(1));
+        if (repeat > replaceTo.length) {
+          while(true) {
+            replaceTo = pad + replaceTo;
+            if (replaceTo.length >= repeat) {
+              break;
+            }
+          }
+        }
+        result = result.replace(matches[i], replaceTo);
+      }
+    }
+  }
+  return result;
+}
 window.addEventListener('DOMContentLoaded', () => {
   document.getElementById('process_button').addEventListener('click', () => {
     let source = document.getElementById('source').value;
@@ -24,12 +53,12 @@ window.addEventListener('DOMContentLoaded', () => {
 </script>
 </head>
 <body>
-<textarea id="source" style="width: 300px;height: 200px;">ABCD</textarea><br />
+<textarea id="source" style="width: 300px;height: 200px;">Y/M/D</textarea><br />
 <input style="text-align: right; width: 50px;" type="number" id="times" value="2"><br />
 <input type="button" id="process_button" value="Process"><br />
 <textarea style="width: 300px;height: 200px;" id="processor">
 function processor(str, i) {
-  return str.replace(/A/, i);
+  return str.replace(/Y/g, 2019).replace(/M/g, "01").replace(/D/g, formatString("%02d", i + 1));
 }
 </textarea><br />
 <textarea  style="width: 300px;height: 200px;" id="repeated_source"></textarea><br />
