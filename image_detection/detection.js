@@ -85,7 +85,10 @@ self.addEventListener('message', function(e) {
   // console.time("worker");
   let postData = e.data;
   let data = postData.imageData;
+  let threashold = postData.threashold || 10.0;
+  let size = postData.size || 1;
   let inputValues = [];
+  console.log("threashold", threashold);
   for (let y = 0;y < e.data.height - 1;y++) {
       let y0 = y * e.data.width;
       for (let x = 0;x < e.data.width - 1;x++) {
@@ -94,13 +97,13 @@ self.addEventListener('message', function(e) {
           data[xx] = parseInt(Math.abs(
               data[xx + 1] - data[xx] + data[xxx] - data[xx] + data[xxx + 1] - data[xx]
           ));
-          if (data[xx] > 10.0) {
+          if (data[xx] > threashold) {
               inputValues.push([x, y]);
           }
       }
   }
 
-  let dbscan = new DBSCANClustering(inputValues, 3, 1, euclidean);
+  let dbscan = new DBSCANClustering(inputValues, 3, size, euclidean);
   let clusters = dbscan.performClustering();
   let foundPoints = [];
   for (let cluster of clusters) {
