@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta http-equiv="X-UA-Compatible" content="ie=edge">
+<title>Detector</title>
+<script type="module" >
+    import {ImageResize} from './image_resize.mjs';
+    window.ImageResize = ImageResize;
+</script>
+<script>
+let mainDisplay;
+let debugDisplay;
+let ctx;
+let ctx2;
+let worker = new Worker('detection.js');
+let imageDataUint;
+const PoolingScale = 2;
+let ImageResize;
+document.addEventListener('DOMContentLoaded', () => {
+    ImageResize = window.ImageResize;
+    mainDisplay = document.getElementById('output');
+    debugDisplay = document.getElementById('debug1');
+    ctx = mainDisplay.getContext('2d');
+    ctx2 = debugDisplay.getContext('2d');
+    let readFile = function(files) {
+        for (let file of files) {
+            console.log(file);
+            let reader = new FileReader();
+            reader.onload = () => {
+                console.log("loaded");
+                let img = new Image();
+                img.src = reader.result;
+                img.onload = () => {
+                    ctx.drawImage(img, 0, 0, img.width, img.height, 0, 0, mainDisplay.width, mainDisplay.height);
+                    // ctx.drawImage(img, 0, 0, img.width, img.height);
+
+                    let imageData = ctx.getImageData(0, 0, mainDisplay.width, mainDisplay.height);
+                    imageDataUint = new Uint8ClampedArray(imageData.data);
+                    detectStart();
+                };
+
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+    document.getElementById('input_file').addEventListener('change', function (evt) {
+        let files = evt.target.files; // FileList object
+        readFile(files);
+    }, false);
+    worker.addEventListener('message', function(e) {
+        console.timeEnd("detection");
+        let detectedObjects = e.data;
+        console.log(detectedObjects);
+        if (detectedObjects.length > 0) {
+            for (let [minX, minY, maxX, maxY] of detectedObjects) {
+                ctx.beginPath();
+                ctx.strokeStyle = "red";
+                ctx.rect(minX * PoolingScale, minY * PoolingScale, (maxX - minX) * PoolingScale, (maxY - minY) * PoolingScale);
+                ctx.stroke();
+            }
+        }
+    }, false);
+});
+
+function detectStart() {
+    let width = mainDisplay.width;
+    let height = mainDisplay.height;
+    console.time("pooling");
+    let pooledData = ImageResize.monoColor(imageDataUint);
+    let pooledData3 = ImageResize.maxPoolingMono(pooledData, width, height, PoolingScale);
+    console.timeEnd("pooling");
+
+    let data2 = pooledData3;
+    let width2 = width / PoolingScale;
+    let height2 = height / PoolingScale;
+
+    var imgData = ctx2.getImageData(0, 0, width2, height2);
+    for (let y = 0;y < height2 - 1;y++) {
+        let y0 = y * width2;
+        for (let x = 0;x < width2 - 1;x++) {
+            let xx = (y0 + x) * 1;
+            let xxx = (y0 + width2 + x) * 1;
+            let xxxx = xx * 4;
+            // let min = Math.min(data2[xx], data2[xx + 1], data2[xxx], data2[xxx + 1]);
+            // let max = Math.max(data2[xx], data2[xx + 1], data2[xxx], data2[xxx + 1]);
+            let dot = parseInt(Math.abs(
+                data2[xx + 1] - data2[xx] + data2[xxx] - data2[xx] + data2[xxx + 1] - data2[xx]
+            ));
+            imgData.data[xxxx + 0] = dot;
+            imgData.data[xxxx + 1] = dot;
+            imgData.data[xxxx + 2] = dot;
+            imgData.data[xxxx + 3] = 255;
+        }
+    }
+    ctx2.putImageData(imgData, 0, 0);
+
+    worker.postMessage({
+        "imageData": pooledData3,
+        "width": width / PoolingScale,
+        "height": height / PoolingScale,
+    });
+    console.time("detection");
+}
+</script>
+</head>
+<body>
+    <article>
+        <section class="input_box">
+            <input id="input_file" type="file">
+        </section>
+
+        <canvas id="output" width="600" height="300"></canvas>
+        <canvas id="debug1" width="600" height="300"></canvas>
+    </article>
+</body>
+</html>
