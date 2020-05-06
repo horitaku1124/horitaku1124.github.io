@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
 
-  <script src="./js/jscolor.js"></script>
+  <script src="../js/jscolor.js"></script>
   <title>Thumbnail</title>
   <style>
     #canvas_1 {
@@ -47,6 +47,11 @@
             newValue.id = this.todos.length;
             this.todos.push(newValue);
             setTimeout(repaint, 0);
+            this.color_id = "color_id_" + newValue.id;
+            let colorId = this.color_id;
+            setTimeout(() => {
+              let picker = new jscolor(document.getElementById(colorId));
+            }, 0);
           },
           onChange: function () {
             setTimeout(repaint, 0);
@@ -55,11 +60,11 @@
             Vue.delete(this.todos, index);
           },
           onFocus: function (index) {
-            console.log(index);
-            console.log(this.value);
-            document.getElementById('color_picker').style.display = "block";
+            // console.log(index);
+            // console.log(this.value);
+            // document.getElementById('color_picker').style.display = "block";
             document.getElementById('color_picker_value').value = app4.$data.todos[index].color;
-            document.getElementById('color_picker_value').focus();
+            // document.getElementById('color_picker_value').focus();
             document.getElementById('color_picker_value').setAttribute("data-index", index);
           }
         }
@@ -87,18 +92,25 @@
         context.fillText(todo.text, todo.x, canObj.h - todo.y);
       });
     }
+    function saveImageFile(contents, file_name) {
+      let a = document.createElement('a');
+      if (file_name) a.setAttribute('download', file_name);
+      a.href = contents;
+      a.click();
+    }
     function createJpeg() {
       let canvas = document.getElementById('canvas_1');
-      let jpeg = canvas.toDataURL('image/jpeg');
-      document.getElementById('jpeg_for_save').src = jpeg;
+      saveImageFile(canvas.toDataURL('image/jpeg'), 'image.jpg')
     }
-    function closeJpeg() {
-      document.getElementById('jpeg_for_save').src = "";
+    function createPng() {
+      let canvas = document.getElementById('canvas_1');
+      saveImageFile(canvas.toDataURL('image/png'), 'image.png')
     }
-    function colorPickerDone() {
+
+    function colorPickerDone(elm) {
+      console.log("colorPickerDone()=" + elm.value);
       let index = document.getElementById('color_picker_value').getAttribute("data-index");
-      document.getElementById('color_picker').style.display = "none";
-      app4.$data.todos[index].color = document.getElementById('color_picker_value').value;
+      app4.$data.todos[index].color = elm.value;
       setTimeout(repaint, 0);
     }
   </script>
@@ -119,13 +131,13 @@
     Size: <input type="number" style="width:40px" v-model="todo.size" v-on:change="onChange" v-on:keyup="onChange" >
     x: <input type="number" style="width:40px" step="10" v-model="todo.x" v-on:change="onChange" v-on:keyup="onChange" >
     y: <input type="number" style="width:40px" step="10" v-model="todo.y" v-on:change="onChange" v-on:keyup="onChange" >
-    Color: <input type="text"  style="width:60px"    v-model="todo.color" v-on:change="onChange" v-on:keyup="onChange" v-on:focus="onFocus(index)" >
+    Color: <input type="text" :id="color_id" v-on:focus="onFocus(index)" onchange="colorPickerDone(this)" style="width:60px"  v-model="todo.color" v-on:change="onChange" v-on:keyup="onChange" >
     Font: <input type="text"   v-model="todo.font" v-on:change="onChange" v-on:keyup="onChange" >
   </div>
 </section>
 <section>
-  <input type="button" value="JPEG" onclick="createJpeg()"> <input type="button" value="close JPEG" onclick="closeJpeg()"><br/>
-  <img id="jpeg_for_save" src="" alt="">
+  <input type="button" value="JPEG" onclick="createJpeg()">
+  <input type="button" value="PNG" onclick="createPng()">
   <!--<a href="https://www.iloveimg.com/ja/convert-to-jpg" target="_blank">JPEGへの変換はこちら</a>-->
 </section>
 </body>

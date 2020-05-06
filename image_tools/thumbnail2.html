@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja" xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+
+  <script src="../js/jscolor.js"></script>
+  <title>Thumbnail2</title>
+  <style>
+    #canvas_1 {
+      width: 90%;
+      border: 1px solid #aaa;
+    }
+    #color_picker {
+      display: none;
+      position: absolute;
+      padding: 5px;
+      background-color: white;
+      border: 1px solid #222222;
+    }
+  </style>
+  <script>
+    function saveImageFile(contents, file_name) {
+      let a = document.createElement('a');
+      if (file_name) a.setAttribute('download', file_name);
+      a.href = contents;
+      a.click();
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById('save_as_png').addEventListener('click', () => {
+        let canvas = document.getElementById('canvas_1');
+        let png = canvas.toDataURL('img/png');
+        saveImageFile(png, "image.png");
+      });
+
+      document.getElementById('set_bg_color').value = bgColor;
+    });
+    function onFocusColor() {
+      document.getElementById('color_picker').style.display = "block";
+      document.getElementById('color_picker_value').value = document.getElementById('set_bg_color').value;
+      document.getElementById('color_picker_value').focus();
+    }
+    let bgColor = "000000";
+    function colorPickerDone() {
+      document.getElementById('color_picker').style.display = "none";
+      bgColor = document.getElementById('color_picker_value').value;
+      document.getElementById('set_bg_color').value = bgColor;
+      console.log("bgColor", bgColor);
+      setTimeout(repaint, 0);
+    }
+    function repaint() {
+      let canvas = document.getElementById('canvas_1');
+
+      context = canvas.getContext('2d');
+      context.fillStyle = "#" + bgColor;
+      context.fillRect(0, 0, canvas.width, canvas.height);
+    }
+  </script>
+</head>
+<body>
+<div id="color_picker">
+  <input id="color_picker_value" value="ffcc00" class="jscolor {width:101, padding:0, shadow:false,
+    borderWidth:0, backgroundColor:'transparent', insetColor:'#000'}">
+  <input type="button" value="OK" id="color_picker_done" onclick="colorPickerDone()" >
+</div>
+<canvas id="canvas_1" width="1920" height="1080"></canvas>
+<br>
+BG: <input type="text" id="set_bg_color"  style="width:60px" onfocus="onFocusColor()" />
+<hr>
+<section>
+  <input id="save_as_png" type="button" value="Download as PNG">
+</section>
+</body>
+</html>
