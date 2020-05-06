@@ -47,10 +47,12 @@
             newValue.id = this.todos.length;
             this.todos.push(newValue);
             setTimeout(repaint, 0);
-            this.color_id = "color_id_" + newValue.id;
-            let colorId = this.color_id;
             setTimeout(() => {
-              let picker = new jscolor(document.getElementById(colorId));
+              let elms = document.querySelectorAll(".color_pickers");
+
+              for (elm of elms) {
+                let picker = new jscolor(elm);
+              }
             }, 0);
           },
           onChange: function () {
@@ -131,7 +133,7 @@
     Size: <input type="number" style="width:40px" v-model="todo.size" v-on:change="onChange" v-on:keyup="onChange" >
     x: <input type="number" style="width:40px" step="10" v-model="todo.x" v-on:change="onChange" v-on:keyup="onChange" >
     y: <input type="number" style="width:40px" step="10" v-model="todo.y" v-on:change="onChange" v-on:keyup="onChange" >
-    Color: <input type="text" :id="color_id" v-on:focus="onFocus(index)" onchange="colorPickerDone(this)" style="width:60px"  v-model="todo.color" v-on:change="onChange" v-on:keyup="onChange" >
+    Color: <input type="text" class="color_pickers" v-on:focus="onFocus(index)" onchange="colorPickerDone(this)" style="width:60px"  v-model="todo.color" v-on:change="onChange" v-on:keyup="onChange" >
     Font: <input type="text"   v-model="todo.font" v-on:change="onChange" v-on:keyup="onChange" >
   </div>
 </section>
