@@ -49,6 +49,50 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     document.getElementById('repeated_source').value = buffer;
   });
+
+  async function writeFile(fileHandle, contents) {
+    // Create a FileSystemWritableFileStream to write to.
+    const writable = await fileHandle.createWritable();
+    // Write the contents of the file to the stream.
+    await writable.write(contents);
+    // Close the file and write the contents to disk.
+    await writable.close();
+  }
+  async function getNewFileHandle() {
+    const options = {
+      types: [
+        {
+          description: 'Text Files',
+          accept: {
+            'text/plain': ['.txt', '.sql'],
+          },
+        },
+      ],
+    };
+    return await window.showSaveFilePicker(options);
+  }
+
+  document.getElementById('process_to_file_button').addEventListener('click', async () => {
+    const fileHandle = await getNewFileHandle();
+    let source = document.getElementById('source').value;
+    let times = document.getElementById('times').value;
+    let processorStr = document.getElementById('processor').value;
+    eval(processorStr);
+
+    const writable = await fileHandle.createWritable();
+    console.time();
+    const logsEvery = parseInt(times / 10);
+    for (let i = 0;i < times;+i++) {
+      let uniqueOut = processor(source, i);
+      await writable.write(uniqueOut + "\n");
+      if (i !== 0 && i % logsEvery === 0) {
+        console.timeLog();
+      }
+    }
+    await writable.close();
+    console.timeEnd();
+    alert("completed");
+  });
 });
 </script>
 </head>
@@ -56,6 +100,7 @@ window.addEventListener('DOMContentLoaded', () => {
 <textarea id="source" style="width: 300px;height: 200px;">Y/M/D</textarea><br />
 <input style="text-align: right; width: 50px;" type="number" id="times" value="2"><br />
 <input type="button" id="process_button" value="Process"><br />
+<input type="button" id="process_to_file_button" value="Process to file"><br />
 <textarea style="width: 300px;height: 200px;" id="processor">
 function processor(str, i) {
   return str.replace(/Y/g, 2019).replace(/M/g, "01").replace(/D/g, formatString("%02d", i + 1));
